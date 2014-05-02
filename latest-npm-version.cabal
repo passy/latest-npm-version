@@ -59,9 +59,15 @@ executable latest-npm-version
   -- Other library packages from which modules are imported.
   build-depends:       base >=4.7 && <4.8,
                        pipes-http >= 1.0 && < 1.1,
+                       pipes >= 4.1 && < 4.2,
                        text >= 1.1 && < 1.2,
                        text-format >= 0.3 && < 0.4,
-                       network >= 2.5 && < 2.6
+                       network >= 2.5 && < 2.6,
+                       pipes-bytestring >= 2.0 && < 2.1,
+                       aeson >= 0.7 && < 0.8,
+                       pipes-attoparsec >= 0.5 && < 0.6,
+                       transformers >= 0.3 && < 0.4,
+                       lens >= 4.1 && < 4.2
   
   -- Directories containing source files.
   -- hs-source-dirs:      

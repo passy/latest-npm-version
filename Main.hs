@@ -1,10 +1,19 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 import System.Environment (getArgs)
-import Pipes.HTTP (parseUrl, withManager, tlsManagerSettings, withHTTP)
+import Control.Lens (_Right, (^.), (^?))
+import Control.Monad (liftM)
+import Control.Monad.IO.Class (liftIO)
+import Pipes (runEffect, (>->))
+import Pipes.HTTP (parseUrl, withManager, tlsManagerSettings, withHTTP, responseBody)
 import Network.URI (escapeURIString, isAllowedInURI, isUnreserved)
 import Data.Text.Format (Format, format)
+import Control.Monad.Trans.State.Strict (evalStateT)
+import Data.Aeson (json')
+import Data.Aeson.Lens (key, _String)
+import Pipes.Attoparsec (parse)
 
+import qualified Pipes.ByteString as PB
 import qualified Data.Text as T
 import qualified Data.Text.Lazy as TL
 import qualified Data.Text.IO as TIO
@@ -23,6 +32,12 @@ main = do
     req <- parseUrl $ TL.unpack url
     withManager tlsManagerSettings $ \mngr ->
         withHTTP req mngr $ \resp -> do
-            putStrLn $ "resp: " ++ "yo"
-
+            json <- evalStateT (parse json') (responseBody resp)
+            case json of
+                Nothing -> putStrLn "Nope"
+                Just v -> case v of
+                    Left x -> putStrLn "Left"
+                    Right y -> do
+                        let version = y ^? key (T.pack "version") . _String
+                        putStrLn $ show version
     putStrLn "yo"
