@@ -38,5 +38,5 @@ buildRequest name urlFormat =
 makeVersionRequest :: Request -> IO (Maybe (Either ParsingError Value))
 makeVersionRequest req =
     withManager tlsManagerSettings $ \mngr ->
-        withHTTP req mngr $ \resp -> do
+        withHTTP req mngr $ \resp ->
             evalStateT (parse json') (responseBody resp)
