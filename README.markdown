@@ -2,7 +2,7 @@ latest-npm-version
 ==================
 
 Trying to understand Lenses and Pipes by "porting" @sindresorhus'
-[latest-version](github.com/sindresorhus/latest-version/).
+[latest-version](https://github.com/sindresorhus/latest-version/).
 
 Running
 =======
