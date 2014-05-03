@@ -40,4 +40,4 @@ main = do
 
 extractVersion :: AsValue s => Maybe (Either t s) -> Maybe T.Text
 extractVersion json = do
-    json >>= either (\_ -> Nothing) (\j -> j ^? key (T.pack "version") . _String)
+    json >>= either (const Nothing) (^? key "version" . _String)
