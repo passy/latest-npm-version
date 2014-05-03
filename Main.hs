@@ -4,16 +4,16 @@ import System.Environment (getArgs)
 import Control.Lens (_Right, (^.), (^?))
 import Control.Monad (liftM)
 import Control.Monad.IO.Class (liftIO)
+import Control.Monad.Trans.Class (lift)
 import Pipes (runEffect, (>->))
 import Pipes.HTTP (parseUrl, withManager, tlsManagerSettings, withHTTP, responseBody)
-import Network.URI (escapeURIString, isAllowedInURI, isUnreserved)
+import Network.URI (escapeURIString, isUnreserved)
 import Data.Text.Format (Format, format)
 import Control.Monad.Trans.State.Strict (evalStateT)
 import Data.Aeson (json')
-import Data.Aeson.Lens (key, _String)
+import Data.Aeson.Lens (key, _String, AsValue)
 import Pipes.Attoparsec (parse)
 
-import qualified Pipes.ByteString as PB
 import qualified Data.Text as T
 import qualified Data.Text.Lazy as TL
 import qualified Data.Text.IO as TIO
@@ -33,11 +33,16 @@ main = do
     withManager tlsManagerSettings $ \mngr ->
         withHTTP req mngr $ \resp -> do
             json <- evalStateT (parse json') (responseBody resp)
-            case json of
-                Nothing -> putStrLn "Nope"
-                Just v -> case v of
-                    Left x -> putStrLn "Left"
-                    Right y -> do
-                        let version = y ^? key (T.pack "version") . _String
-                        putStrLn $ show version
+            let version = extractVersion json
+
+            putStrLn $ show version
     putStrLn "yo"
+
+extractVersion :: AsValue s => Maybe (Either t s) -> Maybe T.Text
+extractVersion json =
+    case json of
+        Nothing -> Nothing
+        Just v -> case v of
+            Left _ -> Nothing
+            Right y -> do
+                y ^? key (T.pack "version") . _String
