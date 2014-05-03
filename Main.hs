@@ -39,10 +39,5 @@ main = do
     putStrLn "yo"
 
 extractVersion :: AsValue s => Maybe (Either t s) -> Maybe T.Text
-extractVersion json =
-    case json of
-        Nothing -> Nothing
-        Just v -> case v of
-            Left _ -> Nothing
-            Right y -> do
-                y ^? key (T.pack "version") . _String
+extractVersion json = do
+    json >>= either (\_ -> Nothing) (\j -> j ^? key (T.pack "version") . _String)
