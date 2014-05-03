@@ -6,7 +6,7 @@ import Control.Monad (liftM)
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Trans.Class (lift)
 import Pipes (runEffect, (>->))
-import Pipes.HTTP (parseUrl, withManager, tlsManagerSettings, withHTTP, responseBody)
+import Pipes.HTTP (parseUrl, withManager, tlsManagerSettings, withHTTP, responseBody, Request)
 import Network.URI (escapeURIString, isUnreserved)
 import Data.Text.Format (Format, format)
 import Control.Monad.Trans.State.Strict (evalStateT)
@@ -26,18 +26,22 @@ latestUrl = "https://registry.npmjs.org/{}/latest"
 main :: IO ()
 main = do
     [name] <- getArgs
-    putStrLn $ "Fetching latest version of " ++ name
-    let url = format latestUrl [escapeURIString isUnreserved name]
-    TIO.putStrLn $ TL.toStrict url
-    req <- parseUrl $ TL.unpack url
+    req <- buildRequest name latestUrl
+    makeVersionRequest req
+
+extractVersion :: AsValue s => Maybe (Either t s) -> Maybe T.Text
+extractVersion json =
+    json >>= either (const Nothing) (^? key "version" . _String)
+
+buildRequest :: String -> Format -> IO Request
+buildRequest name urlFormat =
+    parseUrl $ TL.unpack $ format urlFormat [escapeURIString isUnreserved name]
+
+-- How do I lift something out of the inner monad so I can use it in main (or an
+-- exposed module function for that matter.)
+makeVersionRequest :: Request -> IO ()
+makeVersionRequest req =
     withManager tlsManagerSettings $ \mngr ->
         withHTTP req mngr $ \resp -> do
             json <- evalStateT (parse json') (responseBody resp)
-            let version = extractVersion json
-
-            putStrLn $ show version
-    putStrLn "yo"
-
-extractVersion :: AsValue s => Maybe (Either t s) -> Maybe T.Text
-extractVersion json = do
-    json >>= either (const Nothing) (^? key "version" . _String)
+            print $ extractVersion json
