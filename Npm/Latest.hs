@@ -4,7 +4,7 @@ module Npm.Latest (
     fetchLatestVersion
 ) where
 
-import Control.Lens ((^?))
+import Control.Lens ((^?), _Right)
 import Control.Monad.Trans.State.Strict (evalStateT)
 import Data.Aeson (json', Value)
 import Data.Aeson.Lens (key, _String, AsValue)
@@ -22,7 +22,7 @@ latestUrl = "https://registry.npmjs.org/{}/latest"
 
 extractVersion :: AsValue s => Maybe (Either t s) -> Maybe T.Text
 extractVersion json =
-    json >>= either (const Nothing) (^? key "version" . _String)
+    json >>= (^? _Right . key "version" . _String)
 
 buildRequest :: String -> Format -> IO Request
 buildRequest name urlFormat =
