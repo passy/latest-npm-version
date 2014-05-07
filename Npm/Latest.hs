@@ -1,7 +1,8 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Npm.Latest (
-    fetchLatestVersion
+    fetchLatestVersion,
+    extractVersion
 ) where
 
 import Control.Lens ((^?), _Right)
