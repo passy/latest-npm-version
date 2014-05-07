@@ -1,4 +1,4 @@
-# latest-npm-version
+# latest-npm-version [![Build Status](https://travis-ci.org/passy/latest-npm-version.svg?branch=master)](https://travis-ci.org/passy/latest-npm-version)
 
 Trying to understand Lenses and Pipes by "porting" @sindresorhus'
 [latest-version](https://github.com/sindresorhus/latest-version/).
