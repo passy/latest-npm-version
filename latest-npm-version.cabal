@@ -1,5 +1,5 @@
 name:                  latest-npm-version
-version:               0.2.0
+version:               0.2.1
 synopsis:              Find the latest version of a package on npm
 homepage:              https://github.com/passy/latest-npm-version
 license:               MIT
