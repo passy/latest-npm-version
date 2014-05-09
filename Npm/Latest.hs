@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-|
-Module      : Npm.Latestj
+Module      : Npm.Latest
 Description : Fetch the latest version of an npm module.
 Copyright   : (c) Pascal Hartig, 2014
 License     : MIT
