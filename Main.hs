@@ -4,6 +4,7 @@ import Data.Data (Data)
 import Data.Typeable (Typeable)
 import Npm.Latest (fetchLatestVersion)
 import System.Console.CmdArgs.Implicit (cmdArgsRun, (&=))
+import System.Console.CmdArgs.Explicit (HelpFormat(..), helpText)
 
 import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
@@ -22,7 +23,7 @@ main = do
     mainArgs <- cmdArgsRun args
     let moduleName = (name mainArgs)
     if length moduleName == 0
-        then TIO.putStrLn "Missing module name. Consult --help."
+        then print $ helpText [] HelpFormatDefault args
         else do
             version <- fetchLatestVersion moduleName
             case version of
