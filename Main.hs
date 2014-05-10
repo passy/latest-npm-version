@@ -16,7 +16,7 @@ data LatestNpmVersion = LatestNpmVersion {name :: String}
 
 args :: CA.Mode (CA.CmdArgs LatestNpmVersion)
 args = CA.cmdArgsMode $ LatestNpmVersion{name = CA.def &= CA.args}
-       &= CA.summary "latest-npm-version v0.1.0"
+       &= CA.summary "latest-npm-version v0.2.1"
 
 main :: IO ()
 main = do
