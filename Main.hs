@@ -26,6 +26,6 @@ main = do
         then print $ helpText [] HelpFormatDefault args
         else do
             version <- fetchLatestVersion moduleName
-            case version of
-                Nothing -> TIO.putStrLn "Error: fetching/parsing JSON failed"
-                Just v -> TIO.putStrLn $ T.unwords [T.pack moduleName, v]
+            TIO.putStrLn $ case version of
+                Nothing -> "Error: fetching/parsing JSON failed"
+                Just v -> T.unwords [T.pack moduleName, v]
