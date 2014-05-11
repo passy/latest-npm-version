@@ -29,7 +29,8 @@ library
                        aeson >= 0.7 && < 0.8,
                        pipes-attoparsec >= 0.5 && < 0.6,
                        transformers >= 0.3 && < 0.4,
-                       lens >= 4.1 && < 4.2
+                       lens >= 4.1 && < 4.2,
+                       http-client >= 0.3 && < 0.4
   default-language:    Haskell2010
 
 executable latest-npm-version
@@ -47,7 +48,8 @@ executable latest-npm-version
                        pipes-attoparsec >= 0.5 && < 0.6,
                        transformers >= 0.3 && < 0.4,
                        lens >= 4.1 && < 4.2,
-                       cmdargs >= 0.10 && < 0.11
+                       cmdargs >= 0.10 && < 0.11,
+                       http-client >= 0.3 && < 0.4
   default-language:    Haskell2010
 
 
@@ -65,4 +67,5 @@ Test-Suite hspec-tests
                   aeson >= 0.7 && < 0.8,
                   pipes-attoparsec >= 0.5 && < 0.6,
                   transformers >= 0.3 && < 0.4,
-                  lens >= 4.1 && < 4.2
+                  lens >= 4.1 && < 4.2,
+                  http-client >= 0.3 && < 0.4
