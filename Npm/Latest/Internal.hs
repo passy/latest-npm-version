@@ -22,6 +22,8 @@ import Pipes.HTTP (parseUrl, withManager, tlsManagerSettings, withHTTP, response
 import qualified Data.Text as T
 import qualified Data.Text.Lazy as TL
 
+data NpmError = HttpError HttpException | JsonError ParsingError
+
 extractVersion :: AsValue s => Maybe (Either t s) -> Maybe T.Text
 extractVersion json =
     json >>= (^? _Right . key "version" . _String)
@@ -34,14 +36,13 @@ makeVersionRequest :: Request -> IO (Either ParsingError Value)
 makeVersionRequest req = undefined
     -- withManager tlsManagerSettings $ \mngr -> executeHTTPRequest req mngr
 
-executeHTTPRequest :: Request -> Manager -> IO (Either ParsingError Value)
+executeHTTPRequest :: Request -> Manager -> IO (Either NpmError Value)
 executeHTTPRequest req mngr = do
      -- TODO: simplify
      catchJust (guard . isStatusCodeException)
                (withHTTP req mngr $ \resp -> parseResponse resp >>=
                 return . unwrapMaybe)
-               (\ex -> undefined)
-               -- (\ex -> return $ Left (ex :: HttpException))
+               (\ex -> return $ Left $ HttpError (ex :: HttpException))
      where
         unwrapMaybe :: Maybe (Either a Value) -> Either a Value
         unwrapMaybe v = fromMaybe (Right "nothing") v
