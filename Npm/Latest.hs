@@ -16,8 +16,8 @@ module Npm.Latest (
     extractVersion
 ) where
 
-import Npm.Latest.Internal (buildRequest, makeVersionRequest, extractVersion)
 import Data.Text.Format (Format)
+import Npm.Latest.Internal (buildRequest, makeVersionRequest, extractVersion)
 import qualified Data.Text as T
 
 latestUrl :: Format

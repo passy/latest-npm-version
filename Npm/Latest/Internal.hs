@@ -1,4 +1,4 @@
-{-# LANGUAGE OverloadedStrings, ScopedTypeVariables, DataKinds, DeriveDataTypeable #-}
+{-# LANGUAGE OverloadedStrings, ScopedTypeVariables, DataKinds, DeriveDataTypeable, ExistentialQuantification #-}
 module Npm.Latest.Internal (
     extractVersion,
     buildRequest,
@@ -24,21 +24,21 @@ import Pipes.HTTP (parseUrl, withManager, tlsManagerSettings, withHTTP, response
 import qualified Data.Text as T
 import qualified Data.Text.Lazy as TL
 
-newtype GenericNpmException = GenericNpmException
+data GenericNpmException = GenericNpmException
     deriving (Typeable, Show)
 instance Exception GenericNpmException
 
-extractVersion :: AsValue s => Maybe (Either t s) -> Maybe T.Text
+extractVersion :: AsValue s => Either SomeException s -> Maybe T.Text
 extractVersion json =
-    json >>= (^? _Right . key "version" . _String)
+    json ^? _Right . key "version" . _String
 
 buildRequest :: String -> Format -> IO Request
 buildRequest name urlFormat =
     parseUrl $ TL.unpack $ format urlFormat [escapeURIString isUnreserved name]
 
-makeVersionRequest :: Request -> IO (Either ParsingError Value)
-makeVersionRequest req = undefined
-    -- withManager tlsManagerSettings $ \mngr -> executeHTTPRequest req mngr
+makeVersionRequest :: Request -> IO (Either SomeException Value)
+makeVersionRequest req =
+    withManager tlsManagerSettings $ \mngr -> executeHTTPRequest req mngr
 
 executeHTTPRequest :: Request -> Manager -> IO (Either SomeException Value)
 executeHTTPRequest req mngr = do
@@ -46,12 +46,14 @@ executeHTTPRequest req mngr = do
      catchJust (guard . isStatusCodeException)
                (withHTTP req mngr $ \resp -> parseResponse resp >>=
                 return . unwrapMaybe)
-               (\ex -> return $ Left $ toException ex)
+               (\ex -> return $ Left $ toException $ GenericNpmException) -- BUG
      where
-        unwrapMaybe :: Maybe (Either a Value) -> Either a Value
-        unwrapMaybe (Either ex v) = fromMaybe
-            (Right "Wat")
-            (Either toException $ ex v)
+        -- unwrapMaybe :: Maybe (Either a Value) -> Either SomeException Value
+        unwrapMaybe = maybe
+            (Left $ toException $ GenericNpmException)
+            (\e -> case e of
+                Left ex -> Left $ toException $ ex
+                Right v -> Right v)
 
         parseResponse resp = evalStateT (parse json') (responseBody resp)
 
