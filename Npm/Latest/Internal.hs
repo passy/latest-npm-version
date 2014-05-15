@@ -28,9 +28,9 @@ data GenericNpmException = GenericNpmException
     deriving (Typeable, Show)
 instance Exception GenericNpmException
 
-extractVersion :: AsValue s => Either SomeException s -> Maybe T.Text
+extractVersion :: AsValue s => Either e s -> Either e (Maybe T.Text)
 extractVersion json =
-    json ^? _Right . key "version" . _String
+    json >>= \j -> return $ (j ^? key "version" . _String)
 
 buildRequest :: String -> Format -> IO Request
 buildRequest name urlFormat =
