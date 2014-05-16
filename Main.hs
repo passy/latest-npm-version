@@ -31,4 +31,6 @@ main = do
         then print $ helpText [] HelpFormatDefault args
         else
             fetchLatestVersion moduleName >>=
-                TIO.putStrLn . maybe "Error: fetching/parsing JSON failed" id
+                TIO.putStrLn . either
+                    (\_ -> "Error: fetching/parsing JSON failed")
+                    id

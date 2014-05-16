@@ -16,15 +16,16 @@ module Npm.Latest (
     extractVersion
 ) where
 
-import Npm.Latest.Internal (buildRequest, makeVersionRequest, extractVersion)
+import Control.Exception (SomeException)
 import Data.Text.Format (Format)
+import Npm.Latest.Internal (buildRequest, makeVersionRequest, extractVersion)
 import qualified Data.Text as T
 
 latestUrl :: Format
 latestUrl = "https://registry.npmjs.org/{}/latest"
 
 -- |Fetch the latest version for the given module name.
-fetchLatestVersion :: String -> IO (Maybe T.Text)
+fetchLatestVersion :: String -> IO (Either SomeException T.Text)
 fetchLatestVersion name = do
     req <- buildRequest name latestUrl
     resp <- makeVersionRequest req
