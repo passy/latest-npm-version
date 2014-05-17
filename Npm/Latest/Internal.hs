@@ -6,19 +6,16 @@ module Npm.Latest.Internal (
 ) where
 
 import Data.Typeable (Typeable)
-import Control.Lens ((^?), _Right)
+import Control.Lens ((^?))
 import Control.Exception (catchJust, Exception, SomeException, toException)
 import Control.Monad (guard)
 import Control.Monad.Trans.State.Strict (evalStateT)
-import Control.Monad.IO.Class (liftIO)
-import Data.Maybe (fromMaybe)
-import Data.Either (Either)
 import Data.Aeson (json', Value)
 import Data.Aeson.Lens (key, _String, AsValue)
 import Data.Text.Format (Format, format)
 import Network.URI (escapeURIString, isUnreserved)
 import Network.HTTP.Client (HttpException(StatusCodeException))
-import Pipes.Attoparsec (parse, ParsingError)
+import Pipes.Attoparsec (parse)
 import Pipes.HTTP (parseUrl, withManager, tlsManagerSettings, withHTTP, responseBody, Request, Manager)
 
 import qualified Data.Text as T
@@ -43,13 +40,13 @@ makeVersionRequest :: Request -> IO (Either SomeException Value)
 makeVersionRequest req =
     withManager tlsManagerSettings $ \mngr -> executeHTTPRequest req mngr
 
+
 executeHTTPRequest :: Request -> Manager -> IO (Either SomeException Value)
 executeHTTPRequest req mngr = do
      -- TODO: simplify
-     catchJust (guard . isStatusCodeException)
-               (withHTTP req mngr $ \resp -> parseResponse resp >>=
-                return . unwrapMaybe)
-               (\ex -> return $ Left $ toException $ GenericNpmException) -- BUG
+     catchJust (isStatusCodeException)
+               (withHTTP req mngr $ \resp -> parseResponse resp >>= return . unwrapMaybe)
+               (\e -> return $ Left $ toException e)
      where
         -- unwrapMaybe :: Maybe (Either a Value) -> Either SomeException Value
         unwrapMaybe = maybe
@@ -60,6 +57,6 @@ executeHTTPRequest req mngr = do
 
         parseResponse resp = evalStateT (parse json') (responseBody resp)
 
-isStatusCodeException :: HttpException -> Bool
-isStatusCodeException (StatusCodeException _ _ _) = True
-isStatusCodeException _ = False
+isStatusCodeException :: HttpException -> Maybe HttpException
+isStatusCodeException e@(StatusCodeException _ _ _) = return e
+isStatusCodeException _ = Nothing
