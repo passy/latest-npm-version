@@ -8,14 +8,13 @@ module Npm.Latest.Internal (
 import Data.Typeable (Typeable)
 import Control.Lens ((^?))
 import Control.Exception (catchJust, Exception, SomeException, toException)
-import Control.Monad (guard)
 import Control.Monad.Trans.State.Strict (evalStateT)
 import Data.Aeson (json', Value)
 import Data.Aeson.Lens (key, _String, AsValue)
 import Data.Text.Format (Format, format)
 import Network.URI (escapeURIString, isUnreserved)
 import Network.HTTP.Client (HttpException(StatusCodeException))
-import Pipes.Attoparsec (parse)
+import Pipes.Attoparsec (parse, ParsingError)
 import Pipes.HTTP (parseUrl, withManager, tlsManagerSettings, withHTTP, responseBody, Request, Manager)
 
 import qualified Data.Text as T
@@ -29,7 +28,7 @@ extractVersion :: AsValue s => Either SomeException s -> Either SomeException T.
 extractVersion json =
     json >>= \j -> maybe
         (Left $ toException GenericNpmException)
-        (Right)
+        Right
         (j ^? key "version" . _String)
 
 buildRequest :: String -> Format -> IO Request
@@ -42,21 +41,18 @@ makeVersionRequest req =
 
 
 executeHTTPRequest :: Request -> Manager -> IO (Either SomeException Value)
-executeHTTPRequest req mngr = do
-     -- TODO: simplify
-     catchJust (isStatusCodeException)
-               (withHTTP req mngr $ \resp -> parseResponse resp >>= return . unwrapMaybe)
-               (\e -> return $ Left $ toException e)
+executeHTTPRequest req mngr =
+     catchJust filterStatusCodeException
+               (withHTTP req mngr ((unwrapMaybe `fmap`) . parseResponse))
+               (return . Left . toException)
      where
-        -- unwrapMaybe :: Maybe (Either a Value) -> Either SomeException Value
+        unwrapMaybe :: Maybe (Either ParsingError b) -> Either SomeException b
         unwrapMaybe = maybe
-            (Left $ toException $ GenericNpmException)
-            (\e -> case e of
-                Left ex -> Left $ toException $ ex
-                Right v -> Right v)
+            (Left $ toException GenericNpmException)
+            (either (Left . toException) Right)
 
         parseResponse resp = evalStateT (parse json') (responseBody resp)
 
-isStatusCodeException :: HttpException -> Maybe HttpException
-isStatusCodeException e@(StatusCodeException _ _ _) = return e
-isStatusCodeException _ = Nothing
+filterStatusCodeException :: HttpException -> Maybe HttpException
+filterStatusCodeException e@StatusCodeException{} = return e
+filterStatusCodeException _ = Nothing
