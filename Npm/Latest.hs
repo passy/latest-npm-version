@@ -13,12 +13,13 @@ about Lenses and Pipes along the way. Use on your own risk.
 -}
 module Npm.Latest (
     fetchLatestVersion,
-    extractVersion
+    extractVersion,
+    GenericNpmException(..)
 ) where
 
 import Control.Exception (SomeException)
 import Data.Text.Format (Format)
-import Npm.Latest.Internal (buildRequest, makeVersionRequest, extractVersion)
+import Npm.Latest.Internal (buildRequest, makeVersionRequest, extractVersion, GenericNpmException(..))
 import qualified Data.Text as T
 
 latestUrl :: Format

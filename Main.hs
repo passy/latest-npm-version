@@ -1,13 +1,16 @@
 {-# LANGUAGE OverloadedStrings, DeriveDataTypeable #-}
 
 import Paths_latest_npm_version (version)
+import Control.Exception (fromException)
+import Network.HTTP.Client (HttpException(StatusCodeException))
 import Data.Data (Data)
 import Data.Version (showVersion)
 import Data.Typeable (Typeable)
-import Npm.Latest (fetchLatestVersion)
+import Npm.Latest (fetchLatestVersion, GenericNpmException(..))
 import System.Console.CmdArgs.Implicit (cmdArgsRun, (&=))
 import System.Console.CmdArgs.Explicit (HelpFormat(..), helpText)
 
+import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
 import qualified System.Console.CmdArgs.Implicit as CA
 
@@ -32,5 +35,13 @@ main = do
         else
             fetchLatestVersion moduleName >>=
                 TIO.putStrLn . either
-                    (\_ -> "Error: fetching/parsing JSON failed")
+                    formatError
                     id
+
+    where
+        formatError e =
+            T.pack $ "FATAL: " ++ case fromException e of
+                Just GenericNpmException -> "Unknown error"
+                _ -> case fromException e of
+                    Just (s@StatusCodeException{}) -> "HTTP error " ++ show s
+                    _ -> "Unknown error"

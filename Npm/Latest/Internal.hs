@@ -2,7 +2,8 @@
 module Npm.Latest.Internal (
     extractVersion,
     buildRequest,
-    makeVersionRequest
+    makeVersionRequest,
+    GenericNpmException(..)
 ) where
 
 import Data.Typeable (Typeable)
