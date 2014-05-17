@@ -29,8 +29,8 @@ args = CA.cmdArgsMode $ LatestNpmVersion{name = CA.def &= CA.args}
 main :: IO ()
 main = do
     mainArgs <- cmdArgsRun args
-    let moduleName = (name mainArgs)
-    if length moduleName == 0
+    let moduleName = name mainArgs
+    if null moduleName
         then print $ helpText [] HelpFormatDefault args
         else
             fetchLatestVersion moduleName >>=
