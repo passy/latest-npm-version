@@ -2,7 +2,7 @@
 
 import Paths_latest_npm_version (version)
 import Control.Exception (fromException, Exception, SomeException)
-import Network.HTTP.Client (HttpException(StatusCodeException, HandshakeFailed))
+import Network.HTTP.Client (HttpException(StatusCodeException))
 import Network.HTTP.Types.Status (statusCode)
 import Data.Data (Data)
 import Data.Version (showVersion)
