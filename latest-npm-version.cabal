@@ -19,7 +19,7 @@ library
   ghc-options:         -Wall
   default-extensions:  OverloadedStrings
   exposed-modules:     Npm.Latest
-  build-depends:       base >=4.7 && <4.8,
+  build-depends:       base == 4.*,
                        pipes-http >= 1.0 && < 1.1,
                        pipes >= 4.1 && < 4.2,
                        text >= 1.1 && < 1.2,
@@ -38,7 +38,7 @@ executable latest-npm-version
   main-is:             Main.hs
   ghc-options:         -Wall
   default-extensions:  OverloadedStrings
-  build-depends:       base >=4.7 && <4.8,
+  build-depends:       base == 4.*,
                        pipes-http >= 1.0 && < 1.1,
                        pipes >= 4.1 && < 4.2,
                        text >= 1.1 && < 1.2,
