@@ -40,7 +40,6 @@ makeVersionRequest :: Request -> IO (Either SomeException Value)
 makeVersionRequest req =
     withManager tlsManagerSettings $ \mngr -> executeHTTPRequest req mngr
 
-
 executeHTTPRequest :: Request -> Manager -> IO (Either SomeException Value)
 executeHTTPRequest req mngr =
      catchJust filterStatusCodeException
