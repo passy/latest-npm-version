@@ -7,8 +7,8 @@ Trying to understand Lenses and Pipes by "porting" @sindresorhus'
 ## Install
 
 ```
-> cabal install npm-latest-version
-> npm-latest-version yo
+> cabal install latest-npm-version
+> latest-npm-version yo
 yo 1.2.0
 ```
 
