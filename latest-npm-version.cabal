@@ -1,6 +1,8 @@
 name:                  latest-npm-version
 version:               0.3.1
 synopsis:              Find the latest version of a package on npm
+description:           Determines the version number of the most recent package
+                       on npm for a given name.
 homepage:              https://github.com/passy/latest-npm-version
 license:               MIT
 license-file:          LICENSE
