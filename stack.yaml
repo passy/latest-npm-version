@@ -1,0 +1,6 @@
+flags:
+  latest-npm-version: {}
+packages:
+- '.'
+extra-deps: []
+resolver: nightly-2015-06-10
