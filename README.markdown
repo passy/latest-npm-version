@@ -18,7 +18,9 @@ you're lucky cabal will be finished by then.
 ## Dev
 
 ```
-> cabal sandbox init
-> cabal install --only-dependencies
-> cabal run -- yo
+> stack setup
+> stack build
+> stack test
+> stack exec latest-npm-version yo
+1.4.7
 ```
